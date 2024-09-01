@@ -3,7 +3,8 @@ import User from '../models/user-model.js';
 
 const authMiddleware = async (req, res, next) => {
   try {
-    const token = req.headers.authorization?.split(' ')[1];
+    const token = req.cookies.token;
+ 
 
     if (!token) {
       return res.status(401).json({ message: 'No token provided' });
@@ -25,7 +26,14 @@ const authMiddleware = async (req, res, next) => {
       return res.status(403).json({ message: 'Access forbidden: invalid user type' });
     }
   } catch (err) {
-    return res.status(401).json({ message: 'Invalid token' });
+    console.error('Authentication error:', err); // Log error for debugging
+    if (err.name === 'JsonWebTokenError') {
+      return res.status(401).json({ message: 'Invalid token' });
+    } else if (err.name === 'TokenExpiredError') {
+      return res.status(401).json({ message: 'Token expired' });
+    } else {
+      return res.status(500).json({ message: 'Internal server error' });
+    }
   }
 };
 

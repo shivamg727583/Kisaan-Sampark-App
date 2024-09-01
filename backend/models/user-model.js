@@ -39,9 +39,23 @@ const userSchema = new mongoose.Schema({
     trim: true,
     default: null, // Only relevant if the user is a farmer
   },
+ 
+
 
 });
 
 const User = mongoose.model('User', userSchema);
 
 export default User;
+
+
+// {
+//   "name":"shivam",
+//  "email":"f@f.com",
+//  "password":"12345",
+//  "mobile":"1234567890",
+//  "userType":"farmer",
+//  "details":"I am Farmer",
+//  "farmLocation":"Bhopal"
+ 
+// }

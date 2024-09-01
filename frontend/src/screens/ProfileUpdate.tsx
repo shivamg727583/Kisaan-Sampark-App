@@ -21,7 +21,7 @@ const EditProfile = ({ navigation }: any) => {
       setMobile(user.mobile || '');
       setDetails(user.details || '');
       setFarmLocation(user.farmLocation || '');
-      setProfilePic(user.profilePic ? `data:image/jpeg;base64,${user.profilePic}` : null); // Convert base64 to uri
+      setProfilePic(user.profilePic && `data:image/jpeg;base64,${user.profilePic}`); // Convert base64 to uri
     }
   }, [user]);
 
