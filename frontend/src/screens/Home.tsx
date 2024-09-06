@@ -14,7 +14,7 @@ import { useAuth } from "../Auth/Authcontext";
 export default function Home({ navigation }) {
   const [search, setSearch] = useState("");
   const { user, logout } = useAuth(); 
-  console.log(user)
+  
 
   return (
     <View style={styles.container}>

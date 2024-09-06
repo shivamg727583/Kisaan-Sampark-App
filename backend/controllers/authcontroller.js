@@ -41,6 +41,7 @@ export const login = async (req, res) => {
     const { email, password } = req.body;
     const user = await User.findOne({ email });
     if (!user) {
+      console.log("not user")
       return res.status(400).json({ message: 'Invalid credentials' });
     }
     
@@ -60,48 +61,57 @@ res.cookie('token',token);
     res.status(201).json({   message: 'Login successful',  token, user  });
 
   } catch (err) {
+    console.log("server err")
+
     res.status(500).json({ error: err.message });
   }
 };
 
-
 export const ProfileUpdate = async (req, res) => {
   try {
     const userId = req.params.id;
+    // Find the user in the database
     const user = await User.findById(userId);
-
+    
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Prepare update object
-    const updateData = {};
+    // Log request body and uploaded file (if any)
+    console.log("body => ", req.body);
+    console.log('Uploaded file:', req.file); 
 
-    // Check if a new profile picture is uploaded
+    // Prepare updateData by merging old data with new data from the request
+    const updateData = {
+      name: req.body.name || user.name,
+      email: req.body.email || user.email,
+      farmLocation: req.body.farmLocation || user.farmLocation,
+      details:req.body.details || user.details,
+      mobile:req.body.mobile || user.mobile,
+    };
+
+    // If a new profile picture is uploaded, update the profilePic field
     if (req.file) {
-      // Convert the image buffer to a base64 string
+      console.log(req.file)
       const base64Image = req.file.buffer.toString('base64');
       updateData.profilePic = `data:${req.file.mimetype};base64,${base64Image}`;
+    } else {
+      updateData.profilePic = user.profilePic;  // Keep old profilePic if not updated
     }
 
-    // Update other user fields from request body
-    const { name, email, mobile, details, farmLocation } = req.body;
-    if (name) updateData.name = name;
-    if (email) updateData.email = email;
-    if (mobile) updateData.mobile = mobile;
-    if (details) updateData.details = details;
-    if (farmLocation) updateData.farmLocation = farmLocation;
-
-    // Use findOneAndUpdate to update user document
-    const updatedUser = await User.findOneAndUpdate(
-      { _id: userId },
+    // Find the user and update the profile with the new or old values
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
       { $set: updateData },
-      { new: true } // This option returns the updated document
+      { new: true, runValidators: true }
     );
 
+    // Return the updated profile details
     res.status(200).json({ message: 'Profile updated successfully', user: updatedUser });
   } catch (err) {
     console.error('Error updating profile:', err);
     res.status(500).json({ error: err.message });
   }
 };
+
+

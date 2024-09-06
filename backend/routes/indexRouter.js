@@ -8,7 +8,7 @@ const router = express.Router();
 router.post('/login', login);
 router.post('/signup', signup);
 
-router.put('/profile/update/:id', authMiddleware,upload.single('profilepic') ,ProfileUpdate);
+router.put('/profile/update/:id',  upload.single('profilePic') ,ProfileUpdate);
 
 
 export default router;

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Image, StyleSheet, TouchableOpacity } from 'react-native';
-import axios from '../Axios/Axios'; // Ensure this imports your updated Axios instance
+import axios from '../Axios/Axios'; 
 import * as ImagePicker from 'react-native-image-picker';
 import { useAuth } from '../Auth/Authcontext';
 
@@ -21,21 +21,28 @@ const EditProfile = ({ navigation }: any) => {
       setMobile(user.mobile || '');
       setDetails(user.details || '');
       setFarmLocation(user.farmLocation || '');
-      setProfilePic(user.profilePic && `data:image/jpeg;base64,${user.profilePic}`); // Convert base64 to uri
+      setProfilePic(user.profilePic && `data:image/jpeg;base64,${user.profilePic}`); 
     }
   }, [user]);
 
   const handleChoosePhoto = () => {
-    ImagePicker.launchImageLibrary({ mediaType: 'photo' }, response => {
+    const options = {
+      mediaType: 'photo', // Only photo allow kar rahe hain
+      quality: 1,         // Best quality image
+    };
+
+    ImagePicker.launchImageLibrary(options, (response) => {
       if (response.didCancel) {
         console.log('User cancelled image picker');
       } else if (response.errorCode) {
-        console.log('ImagePicker Error: ', response.errorMessage);
-      } else if (response.assets && response.assets.length > 0) {
-        const source = { uri: response.assets[0].uri };
-        setProfilePic(source);
+        console.log('Image Picker Error:', response.errorCode);
+      } else {
+        const uri = response.assets[0].uri; // Image URI
+        setProfilePic(uri);  // Set the selected image as profile picture
       }
     });
+   
+    
   };
 
   const handleSubmit = async () => {
@@ -49,11 +56,13 @@ const EditProfile = ({ navigation }: any) => {
 
     if (profilePic) {
       formData.append('profilePic', {
-        uri: profilePic.uri,
-        name: 'profile.jpg', // You can use a more dynamic name if available
-        type: 'image/jpeg',  // Adjust if using different image formats
+        uri: profilePic,
+        name: 'profile.jpg', 
+        type: 'image/jpeg', 
       });
     }
+
+    // console.log('Form data to be sent:', formData);
 
     try {
       const response = await axios.put(`/auth/profile/update/${user._id}`, formData, {
@@ -93,7 +102,7 @@ const EditProfile = ({ navigation }: any) => {
         <Text style={styles.buttonText}>Choose Photo</Text>
       </TouchableOpacity>
 
-      {profilePic && <Image source={{ uri: profilePic }} style={styles.image} />}
+      {profilePic && <Image source={{ uri: profilePic.uri }} style={styles.image} />}
 
       <TouchableOpacity style={styles.button} onPress={handleSubmit} disabled={loading}>
         <Text style={styles.buttonText}>{loading ? 'Updating...' : 'Update Profile'}</Text>

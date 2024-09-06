@@ -22,7 +22,7 @@ const productSchema = new mongoose.Schema({
   },
   farmer: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',  // Reference to the User model, assuming farmers are users with a specific role
+    ref: 'User', 
     required: true,
   },
   createdAt: {

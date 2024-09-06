@@ -1,23 +1,38 @@
 import Product from '../models/product-model.js';
 
+
+
 export const createProduct = async (req, res) => {
   try {
-    const { name, category, price, details, imageUrl } = req.body;
+    const { name, category, price, details, farmer } = req.body;
+
+    console.log('Request Body:', req.body);
+    console.log('Request File:', req.file);
+
+    if (!req.file) {
+      return res.status(400).json({ message: 'Image is required' });
+    }
+
+    const imageUrl = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+
     const product = new Product({
       name,
       category,
       price,
       details,
       imageUrl,
-      farmer: req.user.id,
+      farmer,
     });
 
     await product.save();
     res.status(201).json({ message: 'Product created successfully', product });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+  } catch (error) {
+    console.error('Error creating product:', error);
+    res.status(500).json({ message: 'Server error' });
   }
 };
+
+
 
 export const getProducts = async (req, res) => {
   try {

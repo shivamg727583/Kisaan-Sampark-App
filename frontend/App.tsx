@@ -1,3 +1,4 @@
+// AppNavigator.js
 import 'react-native-gesture-handler';
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, TouchableOpacity, StatusBar } from 'react-native';
@@ -5,7 +6,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import Welcome from './src/screens/Welcome';
 import Home from './src/screens/Home';
-import Splash from './src/screens/Splash'; // Import the Splash screen
+import Splash from './src/screens/Splash';
 import ProductDetail from './src/screens/ProductDetail';
 import ProfileUpdate from './src/screens/ProfileUpdate';
 import Cart from './src/screens/Cart';
@@ -16,27 +17,28 @@ import Products from './src/screens/Products';
 import Profile from './src/screens/Profile';
 import Login from './src/components/Login';
 import Signup from './src/components/Signup';
-import { AuthProvider, useAuth } from './src/Auth/Authcontext'; // Ensure useAuth is imported correctly
+import ProductCreate from './src/Products/CreateProductScreen';
+import ProductUpload from './src/Products/EditProductScreen'; 
+import UserProducts from './src/Products/ProductListScreen';
+import { AuthProvider, useAuth } from './src/Auth/Authcontext';
 
 const Stack = createStackNavigator();
 
 function AppNavigator() {
-  const { user } = useAuth(); // Move the useAuth hook inside a component that is a child of AuthProvider
-  const [isLoading, setIsLoading] = useState(true); // State to manage loading
+  const { user, userType } = useAuth(); 
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate a loading process, e.g., fetching user status or checking async storage
     const checkUserAuth = async () => {
-      setTimeout(() => { // Simulate a delay for loading the splash screen
-        setIsLoading(false); // Set loading to false after checking user auth
-      }, 2000); // Change this time as per your requirement or actual loading process
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 2000);
     };
 
     checkUserAuth();
   }, []);
 
   if (isLoading) {
-    // Show Splash screen while loading
     return <Splash />;
   }
 
@@ -53,17 +55,13 @@ function AppNavigator() {
           },
         }}
       >
-        {!user ? ( // If user is not logged in, show Welcome
+        {!user ? (
           <>
-            <Stack.Screen
-              name="Welcome"
-              component={Welcome}
-              options={{ headerShown: false }}
-            />
+            <Stack.Screen name="Welcome" component={Welcome} options={{ headerShown: false }} />
             <Stack.Screen name="Signup" component={Signup} />
             <Stack.Screen name="Login" component={Login} />
           </>
-        ) : ( // If user is logged in, show Home and other screens
+        ) : (
           <>
             <Stack.Screen
               name="Home"
@@ -72,16 +70,19 @@ function AppNavigator() {
                 headerTitle: "किसान Sampark",
                 headerRight: () => (
                   <TouchableOpacity onPress={() => navigation.navigate("Contact")}>
-                    <MaterialIcons
-                      name="support-agent"
-                      size={24}
-                      color={"#fff"}
-                      style={styles.contact}
-                    />
+                    <MaterialIcons name="support-agent" size={24} color={"#fff"} style={styles.contact} />
                   </TouchableOpacity>
                 ),
               })}
             />
+            {userType === 'farmer' && (
+              <>
+                <Stack.Screen name="ProductCreate" component={ProductCreate} />
+                <Stack.Screen name="ProductUpload" component={ProductUpload} />
+                <Stack.Screen name="UserProducts" component={UserProducts} />
+                <Stack.Screen name="ProfileUpdate" component={ProfileUpdate} />
+              </>
+            )}
             <Stack.Screen name="Profile" component={Profile} />
             <Stack.Screen name="Products" component={Products} />
             <Stack.Screen name="ProductDetail" component={ProductDetail} />
@@ -98,8 +99,8 @@ function AppNavigator() {
 
 export default function App() {
   return (
-    <AuthProvider> {/* AuthProvider is now the top-level provider */}
-      <AppNavigator /> {/* AppNavigator is wrapped by AuthProvider */}
+    <AuthProvider>
+      <AppNavigator />
     </AuthProvider>
   );
 }

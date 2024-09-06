@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet, View, Text, TouchableOpacity } from "react-native";
+import { StyleSheet, View, Text, TouchableOpacity, Image } from "react-native";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import Nav from "../components/Nav";
 import { useAuth } from "../Auth/Authcontext";
@@ -9,8 +9,8 @@ export default function Profile() {
   const { user, logout } = useAuth();
   const navigation = useNavigation();
 
-  console.log(user)
-  // Check if user is available
+  // console.log(user)
+  
   if (!user) {
     return (
       <View style={styles.container}>
@@ -19,10 +19,13 @@ export default function Profile() {
     );
   }
 
+  // Determine if a profile picture URL is available
+  const profilePic = user.profilePic ? { uri: user.profilePic } : require('../assets/avator.png'); // You can use a local default image
+
   return (
     <View style={styles.container}>
       <View style={styles.profileContainer}>
-        <MaterialIcons name="person" size={130} color={"white"} style={styles.profileImage} />
+        <Image source={profilePic} style={styles.profileImage} />
         <Text style={styles.profileName}>{user.name || "No Name"}</Text>
       </View>
       <View style={styles.detailsContainer}>
@@ -38,22 +41,21 @@ export default function Profile() {
           <Text style={styles.detailsLabel}>Phone</Text>
           <Text style={styles.detailsValue}>(+91){user.mobile || 'NA'}</Text>
         </View>
-        <TouchableOpacity style={styles.button}>
-          <Text style={styles.buttonText} onPress={()=>{
-            navigation.navigate('ProfileUpdate')
-          }} >Edit Profile</Text>
+        <TouchableOpacity style={styles.button} onPress={() => {
+          navigation.navigate('ProfileUpdate');
+        }}>
+          <Text style={styles.buttonText}>Edit Profile</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.logoutBtn} onPress={async () => {
-  try {
-    await logout(); // Assuming logout is an async function
-    navigation.navigate('Welcome'); 
-  } catch (error) {
-    console.error("Logout failed:", error);
-  }
-}}>
-  <Text style={styles.buttonText}>Logout</Text>
-</TouchableOpacity>
-
+          try {
+            await logout(); // Assuming logout is an async function
+            navigation.navigate('Welcome');
+          } catch (error) {
+            console.error("Logout failed:", error);
+          }
+        }}>
+          <Text style={styles.buttonText}>Logout</Text>
+        </TouchableOpacity>
       </View>
       <Nav navigation={navigation} />
     </View>
